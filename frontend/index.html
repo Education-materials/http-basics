@@ -10,9 +10,10 @@
 </head>
 
 <body>
-    <a href="index.html">CRUD</a>
-    <br />
-    <a href="search.html">Search</a>
+    <nav>
+        <a href="index.html">CRUD</a>
+        <a href="search.html">Search</a>
+    </nav>
     
     <h1>Items</h1>
     
@@ -46,141 +47,7 @@
     <ul id="items"></ul>
 
 
-    <script>
-
-        const API_URL = "http://localhost:8000/api/items";
-
-        // -------------------------
-        // READ
-        // -------------------------
-
-        async function loadItems() {
-
-            const response = await fetch(API_URL);
-
-            const items = await response.json();
-
-            const list = document.getElementById("items");
-
-            list.innerHTML = "";
-
-            items.forEach(item => {
-
-                const li = document.createElement("li");
-
-                li.innerHTML = `
-                    <strong>${item.name}</strong>
-                    - $${item.price}
-
-                    <button onclick="editItem(${item.id}, '${item.name}', ${item.price})">
-                        Edit
-                    </button>
-
-                    <button onclick="deleteItem(${item.id})">
-                        Delete
-                    </button>
-                `;
-
-                list.appendChild(li);
-            });
-        }
-
-
-        // -------------------------
-        // CREATE
-        // -------------------------
-
-        document
-            .getElementById("item-form")
-            .addEventListener("submit", async event => {
-
-                event.preventDefault();
-
-                const name =
-                    document.getElementById("name").value;
-
-                const price =
-                    Number(document.getElementById("price").value);
-
-                await fetch(API_URL, {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name,
-                        price
-                    })
-                });
-
-                event.target.reset();
-
-                loadItems();
-            });
-
-
-        // -------------------------
-        // UPDATE
-        // -------------------------
-
-        async function editItem(id, oldName, oldPrice) {
-
-            const name =
-                prompt("New name:", oldName);
-
-            if (name === null) {
-                return;
-            }
-
-            const price =
-                Number(prompt("New price:", oldPrice));
-
-            await fetch(`${API_URL}/${id}`, {
-
-                method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    name,
-                    price
-                })
-            });
-
-            loadItems();
-        }
-
-
-        // -------------------------
-        // DELETE
-        // -------------------------
-
-        async function deleteItem(id) {
-
-            const confirmed =
-                confirm("Delete this item?");
-
-            if (!confirmed) {
-                return;
-            }
-
-            await fetch(`${API_URL}/${id}`, {
-                method: "DELETE"
-            });
-
-            loadItems();
-        }
-
-
-        // Load items when page opens.
-        loadItems();
-
-    </script>
+    <script src="app.js"></script>
 
 </body>
 </html>
