@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple CRUD</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        input {
+            padding: 8px;
+            margin-right: 5px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 3px;
+            cursor: pointer;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Items</h1>
+
+    <!-- Create item -->
+    <form id="item-form">
+
+        <input
+            id="name"
+            type="text"
+            placeholder="Item name"
+            required
+        >
+
+        <input
+            id="price"
+            type="number"
+            step="0.01"
+            placeholder="Price"
+            required
+        >
+
+        <button type="submit">
+            Add Item
+        </button>
+
+    </form>
+
+    <hr>
+
+    <!-- Items will appear here -->
+    <ul id="items"></ul>
+
+
+    <script>
+
+        const API_URL = "http://localhost:8000/api/items";
+
+        // -------------------------
+        // READ
+        // -------------------------
+
+        async function loadItems() {
+
+            const response = await fetch(API_URL);
+
+            const items = await response.json();
+
+            const list = document.getElementById("items");
+
+            list.innerHTML = "";
+
+            items.forEach(item => {
+
+                const li = document.createElement("li");
+
+                li.innerHTML = `
+                    <strong>${item.name}</strong>
+                    - $${item.price}
+
+                    <button onclick="editItem(${item.id}, '${item.name}', ${item.price})">
+                        Edit
+                    </button>
+
+                    <button onclick="deleteItem(${item.id})">
+                        Delete
+                    </button>
+                `;
+
+                list.appendChild(li);
+            });
+        }
+
+
+        // -------------------------
+        // CREATE
+        // -------------------------
+
+        document
+            .getElementById("item-form")
+            .addEventListener("submit", async event => {
+
+                event.preventDefault();
+
+                const name =
+                    document.getElementById("name").value;
+
+                const price =
+                    Number(document.getElementById("price").value);
+
+                await fetch(API_URL, {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name,
+                        price
+                    })
+                });
+
+                event.target.reset();
+
+                loadItems();
+            });
+
+
+        // -------------------------
+        // UPDATE
+        // -------------------------
+
+        async function editItem(id, oldName, oldPrice) {
+
+            const name =
+                prompt("New name:", oldName);
+
+            if (name === null) {
+                return;
+            }
+
+            const price =
+                Number(prompt("New price:", oldPrice));
+
+            await fetch(`${API_URL}/${id}`, {
+
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    name,
+                    price
+                })
+            });
+
+            loadItems();
+        }
+
+
+        // -------------------------
+        // DELETE
+        // -------------------------
+
+        async function deleteItem(id) {
+
+            const confirmed =
+                confirm("Delete this item?");
+
+            if (!confirmed) {
+                return;
+            }
+
+            await fetch(`${API_URL}/${id}`, {
+                method: "DELETE"
+            });
+
+            loadItems();
+        }
+
+
+        // Load items when page opens.
+        loadItems();
+
+    </script>
+
+</body>
+</html>
