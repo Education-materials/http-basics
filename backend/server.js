@@ -14,12 +14,28 @@ app.use(cors({
 app.use(express.json());
 
 
+// GET /api/items/search
+app.get("/api/items/search", (req, res) => {
+
+    const { name } = req.query;
+
+    const items = db
+        .prepare(`
+            SELECT *
+            FROM items
+            WHERE name LIKE ?
+        `)
+        .all(`%${name}%`);
+
+    res.json(items);
+});
+
 // GET /api/items
 // Read all items.
 app.get("/api/items", (req, res) => {
 
     const items = db
-        .prepare("SELECT * FROM items ORDER BY id")
+        .prepare("SELECT * FROM items ORDER BY id DESC")
         .all();
 
     res.json(items);

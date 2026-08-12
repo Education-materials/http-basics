@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Search Items</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <a href="index.html">CRUD</a>
+    <br />
+    <a href="search.html">Search</a>
+
+    <h1>Search Items</h1>
+
+    <div class="search-box">
+
+        <input
+            id="search"
+            type="text"
+            placeholder="Search by name"
+        >
+
+        <button onclick="searchItems()">
+            Search
+        </button>
+
+    </div>
+
+    <ul id="results"></ul>
+
+    <script>
+
+        async function searchItems() {
+
+            const name =
+                document.getElementById("search").value;
+
+            const response = await fetch(
+                `http://localhost:8000/api/items/search?name=${encodeURIComponent(name)}`
+            );
+
+            const items = await response.json();
+
+            const results =
+                document.getElementById("results");
+
+            results.innerHTML = "";
+
+            items.forEach(item => {
+
+                const li = document.createElement("li");
+
+                li.textContent =
+                    `${item.name} - $${item.price}`;
+
+                results.appendChild(li);
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>
